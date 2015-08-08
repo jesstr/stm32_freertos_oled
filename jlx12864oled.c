@@ -13,17 +13,18 @@ QueueHandle_t LCDDataQueue;
 /* Input command queue to LCD gatekeper */
 QueueHandle_t LCDCmdQueue;
 
-void LCD_SPISend(uint16_t data);
-void LCD_WriteCmd(unsigned char cmd);
-void LCD_WriteData(unsigned char cmd);
-void LCD_SetAddr(unsigned char page, unsigned char column);
-void LCD_ClearScreen(void);
-void LCD_FillScreen(unsigned char data1, unsigned char data2);
-void LCD_WriteStr(char *data);
+
+static void LCD_SPISend(uint16_t data);
+static void LCD_WriteCmd(unsigned char cmd);
+static void LCD_WriteData(unsigned char cmd);
+static void LCD_SetAddr(unsigned char page, unsigned char column);
+static void LCD_ClrScr(void);
+static void LCD_FillScreen(unsigned char data1, unsigned char data2);
+static void LCD_WriteStr(char *data);
 
 
 /* Send byte to LCD */
-void LCD_SPISend(uint16_t data) {
+static void LCD_SPISend(uint16_t data) {
 	CS_OFF;
     SPI_I2S_SendData(SPI1, data);
     while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
@@ -32,7 +33,7 @@ void LCD_SPISend(uint16_t data) {
 
 
 /* Write commant to LCD */
-void LCD_WriteCmd(unsigned char cmd) {
+static void LCD_WriteCmd(unsigned char cmd) {
 	RS_OFF;
 	LCD_SPISend(cmd);
 	RS_ON;
@@ -40,7 +41,7 @@ void LCD_WriteCmd(unsigned char cmd) {
 
 
 /* Write data to LCD */
-void LCD_WriteData(unsigned char data) {
+static void LCD_WriteData(unsigned char data) {
 	RS_ON;
 	LCD_SPISend(data);
 	RS_OFF;
@@ -48,14 +49,15 @@ void LCD_WriteData(unsigned char data) {
 
 
 /* Set addres (cursor) to LCD to print data from */
-void LCD_SetAddr(unsigned char page, unsigned char column) {
+static void LCD_SetAddr(unsigned char page, unsigned char column) {
 	LCD_WriteCmd(0xB0 + page);
 	LCD_WriteCmd((( column >> 4 )& 0x0F ) + 0x10);
 	LCD_WriteCmd( column & 0x0F );
 }
 
 
-void LCD_ClearScreen(void) {
+/* Routine, that actually clears the screen */
+static void LCD_ClrScr(void) {
 	unsigned int i, j;
 
 	for (i = 0; i < 8; i++) {
@@ -68,7 +70,7 @@ void LCD_ClearScreen(void) {
 
 
 /* Fill screen with bytes data1 and data2 */
-void LCD_FillScreen(unsigned char data1, unsigned char data2) {
+static void LCD_FillScreen(unsigned char data1, unsigned char data2) {
 	unsigned int i, j;
 
 	for (i = 0; i < 8; i++) {
@@ -82,7 +84,7 @@ void LCD_FillScreen(unsigned char data1, unsigned char data2) {
 
 
 /* Write string to LCD */
-void LCD_WriteStr(char *str) {
+static void LCD_WriteStr(char *str) {
 	unsigned int j, font_offset;
 
 	for (j = 0; j < 128; j++) {
@@ -106,6 +108,7 @@ void LCD_WriteStr(char *str) {
 }
 
 
+/* Print string on LCD at [row, col] position */
 void LCD_PrintStr(unsigned char row, unsigned char col, char *str) {
 	LCDMessage message;
 
@@ -114,6 +117,13 @@ void LCD_PrintStr(unsigned char row, unsigned char col, char *str) {
 	message.text = str;
 
 	xQueueSend( LCDDataQueue, &message, portMAX_DELAY );
+}
+
+
+/* Clear LCD */
+void LCD_ClearScreen(void) {
+	unsigned char cmd = LCD_CMD_CLRSCR;
+	xQueueSend( LCDCmdQueue, &cmd, portMAX_DELAY );
 }
 
 
@@ -173,30 +183,29 @@ void LCD_Init() {
 /*LCD gatekeeper task */
 void LCD_Task(void *pvParameters) {
 	LCDMessage message;
+	unsigned char cmd;
 
 	LCD_Init();
 	vTaskDelay(100 / portTICK_RATE_MS);
-	LCD_ClearScreen();
-
-
-//	vTaskDelay(2000 / portTICK_RATE_MS);
-//	LCD_FillScreen(0xFF,0xFF);
-//	vTaskDelay(2000 / portTICK_RATE_MS);
-//	LCD_ClearScreen();
-//
-//	LCD_SetAddr(0, 130);
-//	LCD_WriteStr("MMM");
-//	vTaskDelay(500 / portTICK_RATE_MS);
-//	LCD_SetAddr(1, 2);
-//	LCD_WriteStr("MMM");
+	LCD_ClrScr();
 
 	for (;;) {
 		/* Wait for a message to display */
-		xQueueReceive( LCDDataQueue, &message, portMAX_DELAY );
+		xQueueReceive( LCDDataQueue, &message, 50 );
 
 		LCD_SetAddr(message.row, message.column);
 		LCD_WriteStr(message.text);
-	}
 
+		/* Wait for a commands */
+		if ( xQueueReceive( LCDCmdQueue, &cmd, 0 ) == pdTRUE ) {
+			switch (cmd) {
+				case LCD_CMD_CLRSCR: {
+					LCD_ClrScr();
+					break;
+				default: break;
+				}
+			}
+		}
+	}
 }
 

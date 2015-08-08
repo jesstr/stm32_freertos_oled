@@ -29,6 +29,9 @@
 /* SPI used with LCD */
 #define OLED_SPI	SPI1
 
+/* Commands of LCD gatekeeper */
+#define LCD_CMD_CLRSCR	0x00
+
 
 /* Input data queue to LCD gatekeper */
 extern QueueHandle_t LCDDataQueue;
@@ -44,8 +47,13 @@ typedef struct
 } LCDMessage;
 
 
+/*LCD gatekeeper task */
 void LCD_Task(void *pvParameters);
+/* Print string on LCD at [row, col] position */
 void LCD_PrintStr(unsigned char row, unsigned char col, char *str);
+/* Clear LCD */
+void LCD_ClearScreen(void);
+/* LCD initialization */
 void LCD_Init();
 
 

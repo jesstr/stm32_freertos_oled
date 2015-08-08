@@ -1,0 +1,7 @@
+stm32_freertos_oled/
+*.cogui
+*.comarker
+*~
+.*
+!.gitignore
+

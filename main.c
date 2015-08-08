@@ -73,11 +73,11 @@ void task1(void *pvParameters) {
         for (;;) {
                 GPIO_SetBits(GPIOC, GPIO_Pin_9);
                 message.text = "Task1: Led 1 - on ";
-                xQueueSend( LCDQueue, &message, portMAX_DELAY );
+                xQueueSend( LCDDataQueue, &message, portMAX_DELAY );
                 vTaskDelay(500);
                 GPIO_ResetBits(GPIOC, GPIO_Pin_9);
                 message.text = "Task1: Led 1 - off";
-                xQueueSend( LCDQueue, &message, portMAX_DELAY );
+                xQueueSend( LCDDataQueue, &message, portMAX_DELAY );
                 vTaskDelay(500);
         }
 }
@@ -93,11 +93,11 @@ void task2(void *pvParameters) {
 	for (;;) {
 			GPIO_SetBits(GPIOC, GPIO_Pin_8);
 			message.text = "Task2: Led 2 - on ";
-			xQueueSend( LCDQueue, &message, portMAX_DELAY );
+			xQueueSend( LCDDataQueue, &message, portMAX_DELAY );
 			vTaskDelay(342);
 			GPIO_ResetBits(GPIOC, GPIO_Pin_8);
 			message.text = "Task2: Led 2 - off";
-			xQueueSend( LCDQueue, &message, portMAX_DELAY );
+			xQueueSend( LCDDataQueue, &message, portMAX_DELAY );
 			vTaskDelay(342);
 	}
 }
@@ -118,7 +118,7 @@ void task3(void *pvParameters) {
 			else {
 				message.column++;
 			}
-			xQueueSend( LCDQueue, &message, portMAX_DELAY );
+			xQueueSend( LCDDataQueue, &message, portMAX_DELAY );
 			vTaskDelay(25);
 	}
 }
@@ -139,7 +139,7 @@ void task4(void *pvParameters) {
 		else {
 			message.column++;
 		}
-//		xQueueSend( LCDQueue, &message, portMAX_DELAY );
+//		xQueueSend( LCDDataQueue, &message, portMAX_DELAY );
 //		vTaskDelay(20);
 //
 		LCD_PrintStr(message.row, message.column, " Task 4");
@@ -163,7 +163,7 @@ void task5(void *pvParameters) {
 		else {
 			message.column++;
 		}
-//		xQueueSend( LCDQueue, &message, portMAX_DELAY );
+//		xQueueSend( LCDDataQueue, &message, portMAX_DELAY );
 //		vTaskDelay(15);
 
 		LCD_PrintStr(message.row, message.column, " Task 5");
@@ -186,7 +186,7 @@ void task6(void *pvParameters) {
 				message.column++;
 			}
 
-//			xQueueSend( LCDQueue, &message, portMAX_DELAY );
+//			xQueueSend( LCDDataQueue, &message, portMAX_DELAY );
 //			vTaskDelay(10);
 
 			LCD_PrintStr(message.row, message.column, " Task 6");
@@ -227,7 +227,7 @@ int main(void)
 //	LCD_WriteData(0xFF);
 
 	/*  */
-	LCDQueue = xQueueCreate( 10, sizeof( LCDMessage ) );
+	LCDDataQueue = xQueueCreate( 10, sizeof( LCDMessage ) );
 
 	xTaskCreate( task1, ( char * ) "Led1", configMINIMAL_STACK_SIZE, NULL, 1,
 							( xTaskHandle * ) NULL);

@@ -78,7 +78,7 @@
     <File name="cmsis_boot/startup/startup_stm32f10x_md_vl.c" path="cmsis_boot/startup/startup_stm32f10x_md_vl.c" type="1"/>
     <File name="FreeRTOS/Source/queue.c" path="FreeRTOS/Source/queue.c" type="1"/>
     <File name="FreeRTOS/Source/portable/GCC/ARM_CM3/portmacro.h" path="FreeRTOS/Source/portable/GCC/ARM_CM3/portmacro.h" type="1"/>
-    <File name="jlx12864oled.h" path="../stm32_oled/jlx12864oled.h" type="1"/>
+    <File name="jlx12864oled.h" path="jlx12864oled.h" type="1"/>
     <File name="FreeRTOS/Source/tasks.c" path="FreeRTOS/Source/tasks.c" type="1"/>
     <File name="FreeRTOS/Source/include/croutine.h" path="FreeRTOS/Source/include/croutine.h" type="1"/>
     <File name="cmsis_boot" path="" type="2"/>
@@ -125,7 +125,7 @@
     <File name="FreeRTOS/Source/portable/GCC/ARM_CM3" path="" type="2"/>
     <File name="FreeRTOS/Source/event_groups.c" path="FreeRTOS/Source/event_groups.c" type="1"/>
     <File name="FreeRTOS/Source/portable/MemMang" path="" type="2"/>
-    <File name="jlx12864oled.c" path="../stm32_oled/jlx12864oled.c" type="1"/>
+    <File name="jlx12864oled.c" path="jlx12864oled.c" type="1"/>
     <File name="stm_lib/inc" path="" type="2"/>
     <File name="FreeRTOS" path="" type="2"/>
     <File name="FreeRTOSConfig.h" path="FreeRTOSConfig.h" type="1"/>
